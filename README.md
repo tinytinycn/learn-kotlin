@@ -20,6 +20,10 @@ Spring Boot 支持 Kotlin 1.3.x 。想要使用kotlin，必须在 classpath 中�
 由于kotlin 的类class 默认是 final 的， 你可能想要配置 kotlin-spring plugin插件来自动开放 Spring-annotated 类classes以便这些类能被代理。
 > 您需要使用`kotlin-spring` 插件自动将`@Configuration`类和其他一些`@Service`或`@Repository`设置为`open`，因为由于`CGLIB代理`的使用，它们在Spring中无法最终确定（默认情况下，Kotlin中的类和方法是`final`，默认是没有`open`修饰符的）。使用`JDK动态代理`的Bean不需要`open`修饰符。
 
+> 到目前为止，使用Kotlin构建Spring Boot应用程序时，您面临的几个痛点之一是需要在每个类上添加open关键字，并且它们的Spring Bean的成员函数（例如@Configuration类）将被CGLIB代理。产生此要求的根本原因是，在Kotlin中，默认情况下类是final。
+
+>  幸运的是，Kotlin 1.0.6现在提供了一个kotlin-spring插件，默认情况下，该类打开带有注释或元注释的带有以下注释之一的类的类及其成员函数：`@Async` `@Transactional` `@Cacheable` 。 支持元注解，这意味着通过`@Configuration` `@Controller` `@RestController` `@Service`或`@Repository`注解修饰的类会自动打开，因为这些注解是通过`@Component`进行元注释的。
+
 在kotlin中，`Jackson’s Kotlin module` 模块需要序列化/反序列化 JSON 数据。在classpath上找到时，这个模块被自动注册。如果Jackson 和 kotlin 的包被提供，但是 Jackson
 Kotlin module 的包没有提供，则会在后台打印出警告信息warning。
 
@@ -140,6 +144,7 @@ data class KotlinExampleProperties(
 - Array annotation attribute
   1. 数组注解属性：与Java不同，Kotlin当前不允许将数组注释属性指定为单个值（值属性除外），因此请注意，您将必须编写@RequestMapping（method = arrayOf（RequestMethod.GET））或@EnableAutoConfiguration（exclude = arrayOf （Foo :: class））。
   2. 预期在即将发布的Kotlin 1.2中将改善此行为（有关更多详细信息，请参阅此Kotlin问题）。 Spring Framework 4.3组成的注解（例如@GetMapping或@PostMapping）也可以提供帮助。
+    > Kotlin团队通过修复几乎我们报告的所有痛苦点，做出了出色的贡献，这非常感谢他们。预计即将发布的Kotlin 1.2版本还将修复KT-11235，以便允许在不使用arrayOf（）的情况下指定数组注释属性单个值。您将要面对的主要问题可能是KT-14984，它需要明确指定lambda类型，而仅指定{}就足够了。
 
 - Property injection 属性注入
   1. 以下方式为推荐的方法（尤其是与Kotlin结合使用），我们之前已经了解了如何进行构造函数注入。如果必须执行属性注入，则必须使用late-initialized的属性，因为通常，原始属性必须在构造函数中初始化声明为非空类型的。
