@@ -18,6 +18,7 @@ Spring Boot 支持 Kotlin 1.3.x 。想要使用kotlin，必须在 classpath 中�
 和 `org.jetbrains.kotlin:kotlin-reflect`。`kotlin-stdlib`标准库有多个变种版本，`kotlin-stdlib-jdk7` 和 `kotlin-stdlib-jdk8` 均可使用。
 
 由于kotlin 的类class 默认是 final 的， 你可能想要配置 kotlin-spring plugin插件来自动开放 Spring-annotated 类classes以便这些类能被代理。
+> 您需要使用`kotlin-spring` 插件自动将`@Configuration`类和其他一些`@Service`或`@Repository`设置为`open`，因为由于`CGLIB代理`的使用，它们在Spring中无法最终确定（默认情况下，Kotlin中的类和方法是`final`，默认是没有`open`修饰符的）。使用`JDK动态代理`的Bean不需要`open`修饰符。
 
 在kotlin中，`Jackson’s Kotlin module` 模块需要序列化/反序列化 JSON 数据。在classpath上找到时，这个模块被自动注册。如果Jackson 和 kotlin 的包被提供，但是 Jackson
 Kotlin module 的包没有提供，则会在后台打印出警告信息warning。
