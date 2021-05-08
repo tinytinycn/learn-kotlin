@@ -134,3 +134,31 @@ data class KotlinExampleProperties(
 
 
 
+----
+即使Spring Boot和Kotlin可以很好地协同工作，这些额外的技巧也是值得知道的。有关更多详细信息，请参见有关在Spring Boot中改善Kotlin支持的问题。
+
+- Array annotation attribute
+  1. 数组注解属性：与Java不同，Kotlin当前不允许将数组注释属性指定为单个值（值属性除外），因此请注意，您将必须编写@RequestMapping（method = arrayOf（RequestMethod.GET））或@EnableAutoConfiguration（exclude = arrayOf （Foo :: class））。
+  2. 预期在即将发布的Kotlin 1.2中将改善此行为（有关更多详细信息，请参阅此Kotlin问题）。 Spring Framework 4.3组成的注解（例如@GetMapping或@PostMapping）也可以提供帮助。
+
+- Property injection 属性注入
+  1. 以下方式为推荐的方法（尤其是与Kotlin结合使用），我们之前已经了解了如何进行构造函数注入。如果必须执行属性注入，则必须使用late-initialized的属性，因为通常，原始属性必须在构造函数中初始化声明为非空类型的。
+
+  ```kotlin
+    @RestController
+    class CustomerController {
+    
+        @Autowired
+        lateinit var repository:CustomerRepository
+    
+        // ...
+    }
+  ```
+- Property placeholders 配置占位符
+  1. `$`符号用于Kotlin中的字符串插值，因此在使用属性占位符时应转义它：@Value（“ \ $ {some.property}”）。另外，您也可以使用`@ConfigurationProperties`。
+    
+- Jackson Kotlin Module 模块
+  1. 如果您使用的是`Jackson`，则可能要添加`com.fasterxml.jackson.module：jackson-module-kotlin`依赖关系，以使其能够处理没有默认构造函数或Kotlin集合的数据类。它将由Spring Framework 4.3+自动注册。
+    
+- Experiment with the Java to Kotlin converter 体验Java to Kotlin 转换器
+  1. 最后一点，当您不知道如何在Kotlin中编写内容时，IntelliJ IDEA（menu -> Convert Java file to Kotlin file）中提供的Java到Kotlin转换器非常有用。因此，不要犹豫，用Java编写某些东西，然后用它来查找Kotlin 的 对应代码文件。 [点击跳转查看文档](https://kotlinlang.org/docs/reference/comparison-to-java.html) 也可以提供一些帮助。
